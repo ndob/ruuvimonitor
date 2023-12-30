@@ -1,5 +1,5 @@
 # Ruuvi monitor
-Lightweight data collector and webui for Ruuvi devices. The idea behind is that this runs fine on Raspberry PI 1B with handful of Ruuvi tags.
+Lightweight data collector and webui for Ruuvi devices. The idea behind is that this runs fine on Raspberry PI 1B with a handful of Ruuvi tags.
 
 ## Usage
 ### Installation
