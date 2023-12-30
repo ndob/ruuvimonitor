@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Ruuvi monitor{% endblock %}
+{% block content %}
+
+<table class="table" width="100%">
+    <thead>
+        <tr class="d-flex">
+            <th>MAC</th>
+            <th>Name</th>
+            <th>Temperature</th>
+            <th>Humidity</th>
+            <th>Pressure</th>
+            <th>Timestamp</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mac in data %}
+        <tr class="d-flex">
+            <td><a href="/detail/{{ mac }}">{{ mac }}</a></td>
+            <td id="name_{{ mac }}"></td>
+            <td id="temperature_{{ mac }}">n/a</td>
+            <td id="humidity_{{ mac }}">n/a</td>
+            <td id="pressure_{{ mac }}">n/a</td>
+            <td id="timestamp_{{ mac }}">n/a</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    function updateReadings() {
+        fetch("/api/sensor")
+            .then(
+                response => response.json()
+            ).then(jsonResponse => {
+                for (const reading of jsonResponse) {
+                    const mac = reading[0];
+
+                    document.getElementById("name_" + mac).innerHTML = reading[5];
+                    document.getElementById("temperature_" + mac).innerHTML = reading[1];
+                    document.getElementById("humidity_" + mac).innerHTML = reading[2];
+                    document.getElementById("pressure_" + mac).innerHTML = reading[3];
+                    document.getElementById("timestamp_" + mac).innerHTML = getLocalTimestamp(reading[4]);
+                }
+            });
+        setTimeout(updateReadings, 10000);
+    }
+
+    updateReadings();
+
+</script>
+
+
+{% endblock %}

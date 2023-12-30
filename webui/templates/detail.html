@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% block title %}Sensor details{% endblock %}
+{% block content %}
+
+<table class="table" width="100%">
+    <tbody>
+        <tr>
+            <td>MAC</td>
+            <td>{{ data[0] }}</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>
+                <form action="{{ url_for('save_name') }}" method="post">
+                    <input type="text" class="form-control" name="sensorName" value="{{ data[1] }}">
+                    <input type="hidden" name="sensorMac" value="{{ data[0] }}">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td>Temperature</td>
+            <td id="temperature_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Humidity</td>
+            <td id="humidity_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Pressure</td>
+            <td id="pressure_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Update timestamp</td>
+            <td id="timestamp_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>History</td>
+            <td id="history_temperature_{{ data[0] }}">
+                <button onclick="getTemperatureHistoryToday()" class="btn btn-primary">Today</button>
+                <button onclick="getTemperatureHistoryWeek()" class="btn btn-primary">Week</button>
+                <div id="charts_loading_label" style="display:none;">
+                    <h2>Loading...</h2>
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div style="width: 800px;">
+                    <canvas id="history_temperature"></canvas>
+                </div>
+                <div style="width: 800px;">
+                    <canvas id="history_humidity"></canvas>
+                </div>
+                <div style="width: 800px;">
+                    <canvas id="history_pressure"></canvas>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script>
+
+    function updateReadings() {
+        fetch("/api/sensor/{{ data[0] }}")
+            .then(
+                response => response.json()
+            ).then(reading => {
+                const mac = reading[0];
+
+                document.getElementById("temperature_" + mac).innerHTML = reading[1];
+                document.getElementById("humidity_" + mac).innerHTML = reading[2];
+                document.getElementById("pressure_" + mac).innerHTML = reading[3];
+                document.getElementById("timestamp_" + mac).innerHTML = getLocalTimestamp(reading[4]);
+            });
+        setTimeout(updateReadings, 5000);
+    }
+
+    updateReadings();
+
+</script>
+
+<script>
+    let g_temperatureChart = null;
+    let g_humidityChart = null;
+    let g_pressureChart = null;
+
+    function showLoading(show) {
+        document.getElementById("charts_loading_label").style.display = show ? "block" : "none";
+    }
+
+    function getTemperatureHistoryToday() {
+        if (g_temperatureChart) g_temperatureChart.destroy();
+        if (g_humidityChart) g_humidityChart.destroy();
+        if (g_pressureChart) g_pressureChart.destroy();
+
+        showLoading(true);
+
+        fetch("/api/sensor/{{ data[0] }}/history/today")
+            .then(
+                response => response.json()
+            ).then(data => {
+                showLoading(false);
+                g_temperatureChart = new Chart(
+                    document.getElementById("history_temperature"),
+                    {
+                        type: "line",
+                        data: {
+                            labels: data.map(row => getLocalTimestampTimeOnly(row[4])),
+                            datasets: [
+                                {
+                                    label: "Temperature",
+                                    data: data.map(row => row[1])
+                                },
+                            ]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: "Temperature"
+                                }
+                            }
+                        }
+                    }
+                );
+
+                g_humidityChart = new Chart(
+                    document.getElementById("history_humidity"),
+                    {
+                        type: "line",
+                        data: {
+                            labels: data.map(row => getLocalTimestampTimeOnly(row[4])),
+                            datasets: [
+                                {
+                                    label: "Humidity",
+                                    data: data.map(row => row[2])
+                                },
+                            ]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: "Humidity"
+                                }
+                            }
+                        }
+                    }
+                );
+
+                g_pressureChart = new Chart(
+                    document.getElementById("history_pressure"),
+                    {
+                        type: "line",
+                        data: {
+                            labels: data.map(row => getLocalTimestampTimeOnly(row[4])),
+                            datasets: [
+                                {
+                                    label: "Pressure",
+                                    data: data.map(row => row[3])
+                                },
+                            ]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: "Pressure"
+                                }
+                            }
+                        }
+                    }
+                );
+            });
+    }
+
+    function getTemperatureHistoryWeek() {
+        if (g_temperatureChart) g_temperatureChart.destroy();
+        if (g_humidityChart) g_humidityChart.destroy();
+        if (g_pressureChart) g_pressureChart.destroy();
+
+        showLoading(true);
+
+        fetch("/api/sensor/{{ data[0] }}/history/week")
+            .then(
+                response => response.json()
+            ).then(data => {
+                showLoading(false);
+
+                g_temperatureChart = new Chart(
+                    document.getElementById("history_temperature"),
+                    {
+                        type: "line",
+                        data: {
+                            labels: data.map(row => getLocalTimestampDateOnly(row[1])),
+                            datasets: [
+                                {
+                                    label: "Average",
+                                    data: data.map(row => row[2])
+                                },
+                                {
+                                    label: "Min",
+                                    data: data.map(row => row[3])
+                                },
+                                {
+                                    label: "Max",
+                                    data: data.map(row => row[4])
+                                }
+                            ]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: "Temperature"
+                                }
+                            }
+                        }
+                    }
+                );
+
+                g_humidityChart = new Chart(
+                    document.getElementById("history_humidity"),
+                    {
+                        type: "line",
+                        data: {
+                            labels: data.map(row => getLocalTimestampDateOnly(row[1])),
+                            datasets: [
+                                {
+                                    label: "Average",
+                                    data: data.map(row => row[5])
+                                },
+                                {
+                                    label: "Min",
+                                    data: data.map(row => row[6])
+                                },
+                                {
+                                    label: "Max",
+                                    data: data.map(row => row[7])
+                                }
+                            ]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: "Humidity"
+                                }
+                            }
+                        }
+                    }
+                );
+                g_pressureChart = new Chart(
+                    document.getElementById("history_pressure"),
+                    {
+                        type: "line",
+                        data: {
+                            labels: data.map(row => getLocalTimestampDateOnly(row[1])),
+                            datasets: [
+                                {
+                                    label: "Average",
+                                    data: data.map(row => row[8])
+                                },
+                                {
+                                    label: "Min",
+                                    data: data.map(row => row[9])
+                                },
+                                {
+                                    label: "Max",
+                                    data: data.map(row => row[10])
+                                }
+                            ]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: "Pressure"
+                                }
+                            }
+                        }
+                    }
+                );
+            });
+    }
+
+
+</script>
+
+{% endblock %}
