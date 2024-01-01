@@ -7,7 +7,7 @@ Lightweight data collector and webui for Ruuvi devices. The idea behind is that 
 git clone [this-repo]
 python -m venv venv
 source venv/bin/activate
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 ### Running
 Currently the application consists of two different parts:
