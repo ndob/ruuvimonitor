@@ -37,8 +37,10 @@
         <tr>
             <td>History</td>
             <td id="history_temperature_{{ data[0] }}">
-                <button onclick="getTemperatureHistoryToday()" class="btn btn-primary">Today</button>
-                <button onclick="getTemperatureHistoryWeek()" class="btn btn-primary">Week</button>
+                <input data-date-format="dd/mm/yyyy" id="history_datepicker">
+                <br>
+                <button onclick="getTemperatureHistoryDay()" class="btn btn-primary">Day</button>
+                <button onclick="getTemperatureHistoryWeek()" class="btn btn-primary">Week (end day)</button>
                 <div id="charts_loading_label" style="display:none;">
                     <h2>Loading...</h2>
                     <div class="spinner-border text-primary" role="status">
@@ -58,7 +60,6 @@
         </tr>
     </tbody>
 </table>
-
 
 <script>
 
@@ -82,26 +83,38 @@
 </script>
 
 <script>
+    $(function () {
+        $("#history_datepicker").datepicker({
+            autoclose: true,
+            todayHighlight: true,
+        }).datepicker('update', new Date());
+    });
+</script>
+
+<script>
     let g_temperatureChart = null;
     let g_humidityChart = null;
     let g_pressureChart = null;
 
-    function showLoading(show) {
+    function showLoadingSpinner(show) {
         document.getElementById("charts_loading_label").style.display = show ? "block" : "none";
     }
 
-    function getTemperatureHistoryToday() {
+    function getTemperatureHistoryDay() {
         if (g_temperatureChart) g_temperatureChart.destroy();
         if (g_humidityChart) g_humidityChart.destroy();
         if (g_pressureChart) g_pressureChart.destroy();
 
-        showLoading(true);
+        showLoadingSpinner(true);
 
-        fetch("/api/sensor/{{ data[0] }}/history/today")
+        const selectedDate = $("#history_datepicker").datepicker("getDate");
+
+        // getMonth() + 1 because getMonth() returns 0 based month.
+        fetch("/api/sensor/{{ data[0] }}/history/day/" + selectedDate.getFullYear() + "/" + (selectedDate.getMonth() + 1) + "/" + selectedDate.getDate())
             .then(
                 response => response.json()
             ).then(data => {
-                showLoading(false);
+                showLoadingSpinner(false);
                 g_temperatureChart = new Chart(
                     document.getElementById("history_temperature"),
                     {
@@ -181,13 +194,16 @@
         if (g_humidityChart) g_humidityChart.destroy();
         if (g_pressureChart) g_pressureChart.destroy();
 
-        showLoading(true);
+        showLoadingSpinner(true);
 
-        fetch("/api/sensor/{{ data[0] }}/history/week")
+        const selectedDate = $("#history_datepicker").datepicker("getDate");
+
+        // getMonth() + 1 because getMonth() returns 0 based month.
+        fetch("/api/sensor/{{ data[0] }}/history/week/" + selectedDate.getFullYear() + "/" + (selectedDate.getMonth() + 1) + "/" + selectedDate.getDate())
             .then(
                 response => response.json()
             ).then(data => {
-                showLoading(false);
+                showLoadingSpinner(false);
 
                 g_temperatureChart = new Chart(
                     document.getElementById("history_temperature"),

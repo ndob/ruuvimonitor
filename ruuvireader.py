@@ -59,19 +59,15 @@ def detail(sensormac):
 def settings():
     return render_template("settings.html")
 
-@app.route("/api/sensor/<sensormac>")
-def sensor_single(sensormac):
-    return jsonify(query_db("SELECT reading.*, sensor_metadata.name FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id AND reading.mac=?", [sensormac], True))
-
 @app.route("/api/sensor")
 def sensors():
     return jsonify(query_db("SELECT reading.*, sensor_metadata.name FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id"))
 
-@app.route("/api/sensor/<sensormac>/history/today")
-def history_today(sensormac):
-    return jsonify(query_db("SELECT * FROM reading WHERE mac=? AND DATE(timestamp) = DATE('now')", [sensormac]))
+@app.route("/api/sensor/<sensormac>")
+def sensor_single(sensormac):
+    return jsonify(query_db("SELECT reading.*, sensor_metadata.name FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id AND reading.mac=?", [sensormac], True))
 
-@app.route("/api/sensor/<sensormac>/history/<int:year>/<int:month>/<int:day>")
+@app.route("/api/sensor/<sensormac>/history/day/<int:year>/<int:month>/<int:day>")
 def history_day(sensormac, year, month, day):
     try:
         date = datetime.datetime(year=year, month=month, day=day)
@@ -80,9 +76,14 @@ def history_day(sensormac, year, month, day):
         print(traceback.format_exc())
         abort(400)
 
-@app.route("/api/sensor/<sensormac>/history/week")
-def history_week(sensormac):
-    return jsonify(query_db("SELECT mac, DATE(timestamp), AVG(temperature), MIN(temperature), MAX(temperature), AVG(humidity), MIN(humidity), MAX(humidity), AVG(pressure), MIN(pressure), MAX(pressure) FROM reading WHERE mac=? AND DATE(timestamp) > DATE('now', '-7 days') GROUP BY DATE(timestamp)", [sensormac]))
+@app.route("/api/sensor/<sensormac>/history/week/<int:year>/<int:month>/<int:day>")
+def history_week(sensormac, year, month, day):
+    try:
+        date = datetime.datetime(year=year, month=month, day=day)
+        return jsonify(query_db("SELECT mac, DATE(timestamp), AVG(temperature), MIN(temperature), MAX(temperature), AVG(humidity), MIN(humidity), MAX(humidity), AVG(pressure), MIN(pressure), MAX(pressure) FROM reading WHERE mac=? AND DATE(timestamp) > DATE(?, '-7 days') AND DATE(timestamp) <= DATE(?) GROUP BY DATE(timestamp)", [sensormac, date.strftime("%Y-%m-%d"), date.strftime("%Y-%m-%d")]))
+    except:
+        print(traceback.format_exc())
+        abort(400)
 
 @app.route("/api/sensor/name", methods=["POST"])
 def save_name():

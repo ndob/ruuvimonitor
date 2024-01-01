@@ -3,7 +3,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <head>
-    <link rel="stylesheet" href="/static/css/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/external/bootstrap@4.3.1/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/external/bootstrap-datepicker@1.9.0/bootstrap-datepicker.min.css">
+    <style type="text/css">
+        /* Fix date picker layout when using bootstrap4 */
+        .datepicker {
+            font-size: 0.875em;
+        }
+
+        .datepicker td,
+        .datepicker th {
+            width: 1.5em;
+            height: 1.5em;
+        }
+    </style>
     <title>{% block title %}{% endblock %}</title>
 </head>
 
@@ -28,6 +41,7 @@
     <script src="/static/js/external/jquery-3.3.1.slim.min.js"></script>
     <script src="/static/js/external/popper.js@1.14.7/popper.min.js"></script>
     <script src="/static/js/external/bootstrap@4.3.1/bootstrap.min.js"></script>
+    <script src="/static/js/external/bootstrap-datepicker@1.9.0/bootstrap-datepicker.min.js"></script>
     <script src="/static/js/external/chart.js@4.4.1/chart.umd.js"></script>
     <script src="/static/js/helpers.js"></script>
 
