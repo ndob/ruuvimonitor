@@ -61,11 +61,11 @@ def settings():
 
 @app.route("/api/sensor")
 def sensors():
-    return jsonify(query_db("SELECT reading.*, sensor_metadata.name FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id"))
+    return jsonify(query_db("SELECT sensor_metadata.name, reading.* FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id"))
 
 @app.route("/api/sensor/<sensormac>")
 def sensor_single(sensormac):
-    return jsonify(query_db("SELECT reading.*, sensor_metadata.name FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id AND reading.mac=?", [sensormac], True))
+    return jsonify(query_db("SELECT sensor_metadata.name, reading.* FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id AND reading.mac=?", [sensormac], True))
 
 @app.route("/api/sensor/<sensormac>/history/day/<int:year>/<int:month>/<int:day>")
 def history_day(sensormac, year, month, day):

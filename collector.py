@@ -9,10 +9,9 @@ import traceback
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 
 DATABASE_NAME = "readings.db"
-db = sqlite3.connect(DATABASE_NAME, timeout=10)
 
 # Add: all fields, index for mac
-def create_db():
+def create_db(db):
     # db.cursor().execute('''PRAGMA synchronous = EXTRA''')
     # Makes inserts much faster and in this use case ok.
     db.cursor().execute('''PRAGMA journal_mode = WAL''')
@@ -47,6 +46,44 @@ def create_db():
     #db.cursor().execute('''CREATE INDEX IF NOT EXISTS idx_reading_timestampmac ON reading(timestamp DESC, mac)''')
     db.cursor().execute('''CREATE INDEX IF NOT EXISTS idx_reading_date ON reading(DATE(timestamp))''')
 
+def migrate1to2(db):
+    db.cursor().execute('''ALTER TABLE reading ADD acceleration REAL''')
+    db.cursor().execute('''ALTER TABLE reading ADD acceleration_x REAL''')
+    db.cursor().execute('''ALTER TABLE reading ADD acceleration_y REAL''')
+    db.cursor().execute('''ALTER TABLE reading ADD acceleration_z REAL''')
+    db.cursor().execute('''ALTER TABLE reading ADD tx_power REAL''')
+    db.cursor().execute('''ALTER TABLE reading ADD battery REAL''')
+    db.cursor().execute('''ALTER TABLE reading ADD movement_counter INTEGER''')
+    db.cursor().execute('''ALTER TABLE reading ADD measurement_sequence_number INTEGER''')
+    db.cursor().execute('''ALTER TABLE reading ADD rssi REAL''')
+    db.cursor().execute('''ALTER TABLE reading ADD data_format INTEGER''')
+
+    db.cursor().execute('''PRAGMA user_version = 2''')
+
+def init_db():
+    should_create = False
+    if not os.path.exists(DATABASE_NAME):
+        should_create = True
+
+    db = sqlite3.connect(DATABASE_NAME, timeout=10)
+    if should_create:
+        print("Creating DB.")
+        create_db(db)
+
+    while True:
+        db_version = db.cursor().execute("pragma user_version").fetchone()
+        if not db_version:
+            print("No version info found. Bailing out.")
+            break
+
+        version = db_version[0]
+        if version == 1:
+            print("Migrating to version 2.")
+            migrate1to2(db)
+            print("Migration done.")
+        else:
+            break
+
 async def main(update_interval):
     last_update = dict()
     async for data in RuuviTagSensor.get_data_async():
@@ -59,7 +96,38 @@ async def main(update_interval):
         for i in range(10):
             try:
                 print(data)
-                db.cursor().execute("INSERT INTO reading(mac, temperature, humidity, pressure) VALUES(?, ?, ?, ?)", [data[1]["mac"], data[1]["temperature"], data[1]["humidity"], data[1]["pressure"]])
+                db.cursor().execute('''INSERT INTO reading(
+                    mac,
+                    temperature,
+                    humidity,
+                    pressure,
+                    acceleration,
+                    acceleration_x,
+                    acceleration_y,
+                    acceleration_z,
+                    tx_power,
+                    battery,
+                    movement_counter,
+                    measurement_sequence_number,
+                    rssi,
+                    data_format
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                    [
+                        data[1]["mac"],
+                        data[1]["temperature"],
+                        data[1]["humidity"],
+                        data[1]["pressure"],
+                        data[1]["acceleration"],
+                        data[1]["acceleration_x"],
+                        data[1]["acceleration_y"],
+                        data[1]["acceleration_z"],
+                        data[1]["tx_power"],
+                        data[1]["battery"],
+                        data[1]["movement_counter"],
+                        data[1]["measurement_sequence_number"],
+                        data[1]["rssi"],
+                        data[1]["data_format"]
+                    ])
                 db.commit()
                 last_update[mac_address] = datetime.datetime.now()
                 break
@@ -73,5 +141,5 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--update-interval", type=int, default=60, help="Interval in seconds for sensor reading updates.")
     args = parser.parse_args()
 
-    create_db()
+    init_db()
     asyncio.get_event_loop().run_until_complete(main(args.update_interval))

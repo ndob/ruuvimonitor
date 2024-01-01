@@ -35,6 +35,46 @@
             <td id="timestamp_{{ data[0] }}">n/a</td>
         </tr>
         <tr>
+            <td>Acceleration</td>
+            <td id="acceleration_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Acceleration X</td>
+            <td id="acceleration_x_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Acceleration Y</td>
+            <td id="acceleration_y_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Acceleration Z</td>
+            <td id="acceleration_z_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>TX power</td>
+            <td id="tx_power_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Battery</td>
+            <td id="battery_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Movement counter</td>
+            <td id="movement_counter_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Measurement sequence number</td>
+            <td id="measurement_sequence_number_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>RSSI</td>
+            <td id="rssi_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
+            <td>Data format</td>
+            <td id="data_format_{{ data[0] }}">n/a</td>
+        </tr>
+        <tr>
             <td>History</td>
             <td id="history_temperature_{{ data[0] }}">
                 <input data-date-format="dd/mm/yyyy" id="history_datepicker">
@@ -68,12 +108,22 @@
             .then(
                 response => response.json()
             ).then(reading => {
-                const mac = reading[0];
+                const mac = reading[1];
 
-                document.getElementById("temperature_" + mac).innerHTML = reading[1];
-                document.getElementById("humidity_" + mac).innerHTML = reading[2];
-                document.getElementById("pressure_" + mac).innerHTML = reading[3];
-                document.getElementById("timestamp_" + mac).innerHTML = getLocalTimestamp(reading[4]);
+                document.getElementById("temperature_" + mac).innerHTML = reading[2];
+                document.getElementById("humidity_" + mac).innerHTML = reading[3];
+                document.getElementById("pressure_" + mac).innerHTML = reading[4];
+                document.getElementById("timestamp_" + mac).innerHTML = getLocalTimestamp(reading[5]);
+                document.getElementById("acceleration_" + mac).innerHTML = reading[6];
+                document.getElementById("acceleration_x_" + mac).innerHTML = reading[7];
+                document.getElementById("acceleration_y_" + mac).innerHTML = reading[8];
+                document.getElementById("acceleration_z_" + mac).innerHTML = getLocalTimestamp(reading[9]);
+                document.getElementById("tx_power_" + mac).innerHTML = reading[10];
+                document.getElementById("battery_" + mac).innerHTML = reading[11];
+                document.getElementById("movement_counter_" + mac).innerHTML = reading[12];
+                document.getElementById("measurement_sequence_number_" + mac).innerHTML = getLocalTimestamp(reading[13]);
+                document.getElementById("rssi_" + mac).innerHTML = reading[14];
+                document.getElementById("data_format_" + mac).innerHTML = getLocalTimestamp(reading[15]);
             });
         setTimeout(updateReadings, 5000);
     }

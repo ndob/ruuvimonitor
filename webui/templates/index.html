@@ -34,9 +34,9 @@
                 response => response.json()
             ).then(jsonResponse => {
                 for (const reading of jsonResponse) {
-                    const mac = reading[0];
+                    const mac = reading[1];
 
-                    document.getElementById("name_" + mac).innerHTML = reading[5];
+                    document.getElementById("name_" + mac).innerHTML = reading[0];
                     document.getElementById("temperature_" + mac).innerHTML = reading[1];
                     document.getElementById("humidity_" + mac).innerHTML = reading[2];
                     document.getElementById("pressure_" + mac).innerHTML = reading[3];
