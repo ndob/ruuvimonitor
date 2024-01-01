@@ -3,9 +3,11 @@
 #        - history range
 #
 
-from flask import Flask, g, render_template, jsonify, request, redirect
+from flask import abort, Flask, g, render_template, jsonify, request, redirect
 from flask import g
 import sqlite3
+import datetime
+import traceback
 
 DATABASE_NAME = "file:readings.db"
 
@@ -67,7 +69,16 @@ def sensors():
 
 @app.route("/api/sensor/<sensormac>/history/today")
 def history_today(sensormac):
-    return jsonify(query_db("SELECT * FROM reading WHERE mac=? AND DATE(timestamp) == DATE('now')", [sensormac]))
+    return jsonify(query_db("SELECT * FROM reading WHERE mac=? AND DATE(timestamp) = DATE('now')", [sensormac]))
+
+@app.route("/api/sensor/<sensormac>/history/<int:year>/<int:month>/<int:day>")
+def history_day(sensormac, year, month, day):
+    try:
+        date = datetime.datetime(year=year, month=month, day=day)
+        return jsonify(query_db("SELECT * FROM reading WHERE mac=? AND DATE(timestamp) = ?", [sensormac, date.strftime("%Y-%m-%d")]))
+    except:
+        print(traceback.format_exc())
+        abort(400)
 
 @app.route("/api/sensor/<sensormac>/history/week")
 def history_week(sensormac):
