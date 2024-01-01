@@ -1,7 +1,9 @@
 import os
 os.environ["RUUVI_BLE_ADAPTER"] = "bleak"
 
+import argparse
 import asyncio
+import datetime
 import sqlite3
 import traceback
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
@@ -45,14 +47,21 @@ def create_db():
     #db.cursor().execute('''CREATE INDEX IF NOT EXISTS idx_reading_timestampmac ON reading(timestamp DESC, mac)''')
     db.cursor().execute('''CREATE INDEX IF NOT EXISTS idx_reading_date ON reading(DATE(timestamp))''')
 
-async def main():
+async def main(update_interval):
+    last_update = dict()
     async for data in RuuviTagSensor.get_data_async():
+        mac_address = data[1]["mac"]
+        if mac_address in last_update.keys() and (datetime.datetime.now() - last_update[mac_address]).total_seconds() < update_interval:
+            print(f"Skipping update for {mac_address} - {(datetime.datetime.now() - last_update[mac_address]).total_seconds()}")
+            continue
+
         # 10 retries
         for i in range(10):
             try:
                 print(data)
                 db.cursor().execute("INSERT INTO reading(mac, temperature, humidity, pressure) VALUES(?, ?, ?, ?)", [data[1]["mac"], data[1]["temperature"], data[1]["humidity"], data[1]["pressure"]])
                 db.commit()
+                last_update[mac_address] = datetime.datetime.now()
                 break
             except:
                 print(traceback.format_exc())
@@ -60,5 +69,9 @@ async def main():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--update-interval", type=int, default=60, help="Interval in seconds for sensor reading updates.")
+    args = parser.parse_args()
+
     create_db()
-    asyncio.get_event_loop().run_until_complete(main())
+    asyncio.get_event_loop().run_until_complete(main(args.update_interval))
