@@ -67,6 +67,11 @@ def sensors():
 def sensor_single(sensormac):
     return jsonify(query_db("SELECT sensor_metadata.name, reading.* FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id AND reading.mac=?", [sensormac], True))
 
+@app.route("/api/sensor/<sensormac>/history/last24")
+def history_last24(sensormac):
+    return jsonify(query_db("SELECT * FROM reading WHERE mac=? AND DATETIME(timestamp) >= DATETIME('now', '-24 Hour');", [sensormac]))
+
+
 @app.route("/api/sensor/<sensormac>/history/day/<int:year>/<int:month>/<int:day>")
 def history_day(sensormac, year, month, day):
     try:

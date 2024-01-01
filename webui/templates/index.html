@@ -37,10 +37,10 @@
                     const mac = reading[1];
 
                     document.getElementById("name_" + mac).innerHTML = reading[0];
-                    document.getElementById("temperature_" + mac).innerHTML = reading[1];
-                    document.getElementById("humidity_" + mac).innerHTML = reading[2];
-                    document.getElementById("pressure_" + mac).innerHTML = reading[3];
-                    document.getElementById("timestamp_" + mac).innerHTML = getLocalTimestamp(reading[4]);
+                    document.getElementById("temperature_" + mac).innerHTML = reading[2];
+                    document.getElementById("humidity_" + mac).innerHTML = reading[3];
+                    document.getElementById("pressure_" + mac).innerHTML = reading[4];
+                    document.getElementById("timestamp_" + mac).innerHTML = getLocalTimestamp(reading[5]);
                 }
             });
         setTimeout(updateReadings, 10000);

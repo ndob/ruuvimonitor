@@ -60,6 +60,10 @@ def migrate1to2(db):
 
     db.cursor().execute('''PRAGMA user_version = 2''')
 
+def migrate2to3(db):
+    db.cursor().execute('''CREATE INDEX IF NOT EXISTS idx_reading_datetime ON reading(DATETIME(timestamp))''')
+    db.cursor().execute('''PRAGMA user_version = 3''')
+
 def init_db():
     should_create = False
     if not os.path.exists(DATABASE_NAME):
@@ -81,10 +85,15 @@ def init_db():
             print("Migrating to version 2.")
             migrate1to2(db)
             print("Migration done.")
+        if version == 2:
+            print("Migrating to version 3.")
+            migrate2to3(db)
+            print("Migration done.")
         else:
             break
+    return db
 
-async def main(update_interval):
+async def main(update_interval, db):
     last_update = dict()
     async for data in RuuviTagSensor.get_data_async():
         mac_address = data[1]["mac"]
@@ -141,5 +150,5 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--update-interval", type=int, default=60, help="Interval in seconds for sensor reading updates.")
     args = parser.parse_args()
 
-    init_db()
-    asyncio.get_event_loop().run_until_complete(main(args.update_interval))
+    db = init_db()
+    asyncio.get_event_loop().run_until_complete(main(args.update_interval, db))

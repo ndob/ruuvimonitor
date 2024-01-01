@@ -79,6 +79,7 @@
             <td id="history_temperature_{{ data[0] }}">
                 <input data-date-format="dd/mm/yyyy" id="history_datepicker">
                 <br>
+                <button onclick="getTemperatureHistoryLast24Hours()" class="btn btn-primary">Last 24 hours</button>
                 <button onclick="getTemperatureHistoryDay()" class="btn btn-primary">Day</button>
                 <button onclick="getTemperatureHistoryWeek()" class="btn btn-primary">Week (end day)</button>
                 <div id="charts_loading_label" style="display:none;">
@@ -150,17 +151,26 @@
         document.getElementById("charts_loading_label").style.display = show ? "block" : "none";
     }
 
+    function getTemperatureHistoryLast24Hours() {
+        const url = "/api/sensor/{{ data[0] }}/history/last24";
+        getTemperatureHistoryDetail(url);
+    }
+
     function getTemperatureHistoryDay() {
+        const selectedDate = $("#history_datepicker").datepicker("getDate");
+        // getMonth() + 1 because getMonth() returns 0 based month.
+        const url = "/api/sensor/{{ data[0] }}/history/day/" + selectedDate.getFullYear() + "/" + (selectedDate.getMonth() + 1) + "/" + selectedDate.getDate();
+        getTemperatureHistoryDetail(url);
+    }
+
+    function getTemperatureHistoryDetail(url) {
         if (g_temperatureChart) g_temperatureChart.destroy();
         if (g_humidityChart) g_humidityChart.destroy();
         if (g_pressureChart) g_pressureChart.destroy();
 
         showLoadingSpinner(true);
 
-        const selectedDate = $("#history_datepicker").datepicker("getDate");
-
-        // getMonth() + 1 because getMonth() returns 0 based month.
-        fetch("/api/sensor/{{ data[0] }}/history/day/" + selectedDate.getFullYear() + "/" + (selectedDate.getMonth() + 1) + "/" + selectedDate.getDate())
+        fetch(url)
             .then(
                 response => response.json()
             ).then(data => {
