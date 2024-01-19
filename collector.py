@@ -62,4 +62,6 @@ async def collect(update_interval, db):
 def run_collector(db_filename, update_interval):
     print(f"Collector starting with update interval: {update_interval}")
     db = sqlite3.connect(db_filename, timeout=10)
+    event_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(event_loop)
     asyncio.get_event_loop().run_until_complete(collect(update_interval, db))

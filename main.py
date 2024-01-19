@@ -1,5 +1,5 @@
 import argparse
-from multiprocessing import Process
+from threading import Thread
 import signal
 
 from collector import run_collector
@@ -8,17 +8,8 @@ from webui import run_webui
 
 DATABASE_NAME = "readings.db"
 
-g_procs = []
-
-def sigterm_handler(signum, frame):
-    print(f"Got signal: {signum}")
-    for p in g_procs:
-        p.terminate()
-        p.kill()
-        print("Term called")
-
 def main():
-    global g_procs
+    threads = []
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--update-interval", type=int, default=60, help="Interval in seconds for sensor reading updates.")
@@ -27,24 +18,21 @@ def main():
 
     args = parser.parse_args()
 
-    # Init signal handler so we can kill child processes.
-    signal.signal(signal.SIGTERM, sigterm_handler)
-
     # Create (and migrate if necessary) the db.
     init_db(DATABASE_NAME)
 
     if not args.disable_collector:
-        p = Process(target=run_collector, args=(DATABASE_NAME, args.update_interval,))
-        p.start()
-        g_procs.append(p)
+        t = Thread(target=run_collector, args=(DATABASE_NAME, args.update_interval,))
+        t.start()
+        threads.append(t)
 
     if not args.disable_ui:
-        p = Process(target=run_webui, args=(DATABASE_NAME,))
-        p.start()
-        g_procs.append(p)
+        t = Thread(target=run_webui, args=(DATABASE_NAME,))
+        t.start()
+        threads.append(t)
 
-    for p in g_procs:
-        p.join()
+    for t in threads:
+        t.join()
 
     print("Quit.")
 

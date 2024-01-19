@@ -4,7 +4,7 @@ Description=Ruuvimonitor service
 [Service]
 Type=simple
 ExecStart=/mypath/venv/bin/python /mypath/ruuvimonitor/main.py
-ExecStop=/bin/kill $MAINPID
+ExecStop=/bin/kill -9 $MAINPID
 Restart=always
 
 [Install]
