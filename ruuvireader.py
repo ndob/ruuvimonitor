@@ -59,6 +59,10 @@ def detail(sensormac):
 def settings():
     return render_template("settings.html")
 
+@app.route("/alerts")
+def alerts():
+    return render_template("alerts.html")
+
 @app.route("/api/sensor")
 def sensors():
     return jsonify(query_db("SELECT sensor_metadata.name, reading.* FROM reading, reading_newest LEFT JOIN sensor_metadata ON reading.mac = sensor_metadata.mac WHERE reading.rowid=reading_newest.reading_id"))

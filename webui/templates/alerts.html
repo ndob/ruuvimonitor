@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h1>Alerts</h1>
+
+<table class="table w-auto">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Target</th>
+            <th>Operator</th>
+            <th>Value</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <input type="checkbox" value="" id="flexCheckDefault1">
+            </td>
+            <td>
+                Sensor
+            </td>
+            <td>
+                Temperature
+            </td>
+            <td>
+                Less than
+            </td>
+            <td>
+                -5
+            </td>
+            <td>
+                <div class="badge badge-danger">Alert!</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" value="" id="flexCheckDefault1">
+            </td>
+            <td>
+                Living room
+            </td>
+            <td>
+                Temperature
+            </td>
+            <td>
+                Less than
+            </td>
+            <td>
+                -10
+            </td>
+            <td>
+                <div class="badge badge-success">OK</div>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="100%">
+                <button class="btn btn-danger">Delete</button>
+                <button class="btn btn-primary">Clear alerts</button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+<h2>Add</h2>
+<table>
+    <tbody>
+        <tr>
+            <td>
+                <select class="form-select" aria-label="Target">
+                    <option value="mac-address-here">Living room</option>
+                    <option value="mac-address-here">Bed room</option>
+                </select>
+            </td>
+            <td>
+                <select class="form-select" aria-label="Target">
+                    <option value="temperature">Temperature</option>
+                </select>
+            </td>
+            <td>
+                <select class="form-select" aria-label="Target">
+                    <option value="temperature">Less than</option>
+                    <option value="temperature">More than</option>
+                </select>
+            </td>
+            <td>
+                <input step="0.1" value="0" type="number" id="typeNumber" class="form-control" />
+            </td>
+            <td>
+                <button class="btn btn-primary">Add</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+{% endblock %}

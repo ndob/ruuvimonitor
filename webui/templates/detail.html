@@ -75,6 +75,38 @@
             <td id="data_format_{{ data[0] }}">n/a</td>
         </tr>
         <tr>
+            <td>Active alerts</td>
+            <td>
+                <table class="table w-auto">
+                    <thead>
+                        <tr>
+                            <th>Target</th>
+                            <th>Operator</th>
+                            <th>Value</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Temperature
+                            </td>
+                            <td>
+                                Less than
+                            </td>
+                            <td>
+                                -5
+                            </td>
+                            <td>
+                                <div class="badge badge-danger">Alert!</div>
+                                <button class="btn btn-primary">Clear</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
             <td>History</td>
             <td id="history_temperature_{{ data[0] }}">
                 <input data-date-format="dd/mm/yyyy" id="history_datepicker">
