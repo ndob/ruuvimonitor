@@ -1,0 +1,11 @@
+[Unit]
+Description=Ruuvimonitor service
+
+[Service]
+Type=simple
+ExecStart=/mypath/venv/bin/python /mypath/ruuvimonitor/main.py
+ExecStop=/bin/kill $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
