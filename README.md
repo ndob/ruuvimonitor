@@ -10,13 +10,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 ### Running
-Currently the application consists of two different parts:
-- collector.py that collects readings from Ruuvi devices to sqlite database.
 ```
-python collector.py
-```
-
-- ruuvireader.py that creates a simple web UI with Flask.
-```
-python ruuvireader.py
+python main.py
 ```
