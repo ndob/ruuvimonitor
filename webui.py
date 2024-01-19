@@ -100,5 +100,5 @@ def save_name():
     db.commit()
     return redirect("/detail/" + mac)
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+def run_webui():
+    app.run(debug=False, host="0.0.0.0")

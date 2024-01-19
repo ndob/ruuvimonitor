@@ -144,11 +144,7 @@ async def main(update_interval, db):
                 print(traceback.format_exc())
                 print(f"Insert failed. Retrying... Retry number: {i}.")
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--update-interval", type=int, default=60, help="Interval in seconds for sensor reading updates.")
-    args = parser.parse_args()
-
+def run_collector(update_interval):
+    print(f"Collector starting with update interval: {update_interval}")
     db = init_db()
-    asyncio.get_event_loop().run_until_complete(main(args.update_interval, db))
+    asyncio.get_event_loop().run_until_complete(main(update_interval, db))
