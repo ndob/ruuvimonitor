@@ -3,6 +3,7 @@ Description=Ruuvimonitor service
 
 [Service]
 Type=simple
+WorkingDirectory=/mypath/ruuvimonitor/
 ExecStart=/mypath/venv/bin/python /mypath/ruuvimonitor/main.py
 ExecStop=/bin/kill -9 $MAINPID
 Restart=always
