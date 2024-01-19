@@ -1,7 +1,10 @@
 import argparse
 from multiprocessing import Process
 from collector import run_collector
+from db import init_db
 from webui import run_webui
+
+DATABASE_NAME = "readings.db"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -11,14 +14,16 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    init_db(DATABASE_NAME)
+
     procs = []
     if not args.disable_collector:
-        p = Process(target=run_collector, args=(args.update_interval,))
+        p = Process(target=run_collector, args=(DATABASE_NAME, args.update_interval,))
         p.start()
         procs.append(p)
 
     if not args.disable_ui:
-        p = Process(target=run_webui)
+        p = Process(target=run_webui, args=(DATABASE_NAME,))
         p.start()
         procs.append(p)
 

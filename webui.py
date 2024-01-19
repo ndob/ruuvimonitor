@@ -9,7 +9,7 @@ import sqlite3
 import datetime
 import traceback
 
-DATABASE_NAME = "file:readings.db"
+g_db_filename = None
 
 app = Flask(__name__,
     static_folder="webui/static",
@@ -18,13 +18,13 @@ app = Flask(__name__,
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE_NAME + "?mode=ro", uri=True, timeout=10)
+        db = g._database = sqlite3.connect("file:" + g_db_filename + "?mode=ro", uri=True, timeout=10)
     return db
 
 def get_db_mutable():
     db = getattr(g, '_database_mutable', None)
     if db is None:
-        db = g._database_mutable = sqlite3.connect(DATABASE_NAME, uri=True, timeout=10)
+        db = g._database_mutable = sqlite3.connect("file:" + g_db_filename, uri=True, timeout=10)
     return db
 
 def query_db(query, args=(), one=False):
@@ -100,5 +100,7 @@ def save_name():
     db.commit()
     return redirect("/detail/" + mac)
 
-def run_webui():
+def run_webui(db_filename):
+    global g_db_filename
+    g_db_filename = db_filename
     app.run(debug=False, host="0.0.0.0")
