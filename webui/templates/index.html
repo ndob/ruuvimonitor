@@ -4,7 +4,7 @@
 
 <table class="table" width="100%">
     <thead>
-        <tr class="d-flex">
+        <tr>
             <th>MAC</th>
             <th>Name</th>
             <th>Temperature</th>
@@ -15,7 +15,7 @@
     </thead>
     <tbody>
         {% for mac in data %}
-        <tr class="d-flex">
+        <tr>
             <td><a href="/detail/{{ mac }}">{{ mac }}</a></td>
             <td id="name_{{ mac }}"></td>
             <td id="temperature_{{ mac }}">n/a</td>
