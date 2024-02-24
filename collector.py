@@ -6,9 +6,9 @@ import asyncio
 import datetime
 import sqlite3
 import traceback
-from ruuvitag_sensor.ruuvi import RuuviTagSensor
 
 async def collect(update_interval, db):
+    from ruuvitag_sensor.ruuvi import RuuviTagSensor
     last_update = dict()
     async for data in RuuviTagSensor.get_data_async():
         mac_address = data[1]["mac"]
